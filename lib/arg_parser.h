@@ -165,20 +165,6 @@ class ArgParser {
             return std::any_cast<std::vector<V>>(arguments_[alias_[short_arg]]->GetValue())[num_of_value];
         }
 
-
-		std::string GetStringValue(const std::string &long_arg);
-		std::string GetStringValue(const char &short_arg);
-		std::string GetStringValue(const std::string &long_arg, const int &num_of_value);
-		std::string GetStringValue(const char &short_arg, const int &num_of_value);
-
-		int GetIntValue(const std::string &long_arg);
-		int GetIntValue(const char &short_arg);
-		int GetIntValue(const std::string &long_arg, const int &num_of_value);
-		int GetIntValue(const char &short_arg, const int &num_of_value);
-
-		bool GetFlag(const std::string &long_arg);
-		bool GetFlag(const char &short_arg) ;
-
         template <typename V>
         ArgumentValue<V>& AddArgument(const std::string &long_arg) {
             return AddArgument<V>(long_arg, false, false);
@@ -248,7 +234,11 @@ ArgumentValue<V>& ArgumentValue<V>::SetValue(const std::string &value)  {
             *variable_ = stoi(value);
         } else if constexpr ((std::is_same_v<V, std::string>)) {
             *variable_ = value;
-        }
+        } else if constexpr ((std::is_same_v<V, double>)) {
+            *variable_ = stod(value);
+        } else if constexpr ((std::is_same_v<V, char>)) {
+            *variable_ = value[0];
+        } 
     } else {
         if constexpr (std::is_same_v<V, int>) {
             p_vector_->push_back(stoi(value));
@@ -470,7 +460,7 @@ bool ArgParser::Parse(int argc, char** argv) {
         
     }
 
-    // MinCountMultiValue if
+    // MinCountMultiValue || is all set
     for (auto it = arguments_.begin(); it != arguments_.end(); it++) {
         if ((it->second->is_multi && it->second->GetCountMultiValue() < it->second->min_count_multi_value) || it->second->need_to_set) return false;
     }
